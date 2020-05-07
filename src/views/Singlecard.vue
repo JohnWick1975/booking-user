@@ -27,19 +27,19 @@
         </div>
         <div class="date columns is-centered has-background-light">
             <div class="column">
-                <p>{{reserveDate}}</p>
                 <b-field label="Select a date">
                     <b-datepicker
                             placeholder="Type or select a date..."
                             :min-date="minDate"
                             :unselectable-dates="arrDate"
+                            multiple
                             v-model="date"
                             editable>
                     </b-datepicker>
                 </b-field>
             </div>
             <div class="column has-text-centered">
-                <p class="title">Total Price:</p>
+                <p class="title">Total Price: {{totalPrice}}&euro;</p>
                 <b-button @click="addDate" class="has-text-primary is-large">Purchase</b-button>
             </div>
         </div>
@@ -63,12 +63,19 @@
                 img: [],
                 date: [],
                 reserveDate: [],
-                arrDate: []
+                arrDate: [],
+            }
+        },
+        computed: {
+            totalPrice(){
+              return this.price * this.date.length;
             }
         },
         methods: {
             addDate() {
-                this.reserveDate.unshift(this.date.toLocaleDateString('lt'));
+                this.date.forEach(item=>{
+                this.reserveDate.unshift(item.toLocaleDateString('lt'));
+                })
                 firebase
                     .firestore()
                     .collection("houses")
