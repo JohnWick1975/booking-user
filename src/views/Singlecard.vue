@@ -27,47 +27,20 @@
         </div>
         <div class="date columns is-centered has-background-light">
             <div class="column">
-                <table class="table is-fullwidth">
-                    <thead>
-                        <tr>
-                            <th>Available Dates</th>
-                            <th>Book</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>2020-05-25</td>
-                            <td>
-                                <b-checkbox v-model="checkboxCustom"
-                                            true-value="Yes"
-                                            false-value="No">
-                                    {{ checkboxCustom }}
-                                </b-checkbox>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2020-05-26</td>
-                            <td>
-                                <b-checkbox v-model="checkboxCustom"
-                                            true-value="Yes"
-                                            false-value="No">
-                                    {{ checkboxCustom }}
-                                </b-checkbox>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2020-05-27</td>
-                            <td>
-                                <b-checkbox v-model="checkboxCustom">
-                                </b-checkbox>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <p>{{reserveDate}}</p>
+                <b-field label="Select a date">
+                    <b-datepicker
+                            placeholder="Type or select a date..."
+                            :min-date="minDate"
+                            :unselectable-dates="arrDate"
+                            v-model="date"
+                            editable>
+                    </b-datepicker>
+                </b-field>
             </div>
-            <div class="column">
+            <div class="column has-text-centered">
                 <p class="title">Total Price:</p>
-                <b-button class="has-text-primary is-large">Purchase</b-button>
+                <b-button @click="addDate" class="has-text-primary is-large">Purchase</b-button>
             </div>
         </div>
     </div>
@@ -81,13 +54,30 @@
         name: "singlecard",
         data() {
             return {
+                minDate: new Date(),
                 id: this.$route.params.id,
                 title: '',
                 price: null,
                 text: '',
                 city: '',
                 img: [],
+                date: [],
+                reserveDate: [],
+                arrDate: []
             }
+        },
+        methods: {
+            addDate() {
+                this.reserveDate.unshift(this.date.toLocaleDateString('lt'));
+                firebase
+                    .firestore()
+                    .collection("houses")
+                    .doc(this.id)
+                    .update({
+                        reserveDate: this.reserveDate,
+                    })
+                    .then(() => console.log('success'))
+            },
         },
         beforeMount() {
             firebase
@@ -102,7 +92,13 @@
                     this.price = data.data().price;
                     this.city = data.data().city;
                     this.text = data.data().text;
-                });
+                    data.data().reserveDate ? this.reserveDate = data.data().reserveDate : this.reserveDate = [];
+                })
+                .then(() => {
+                    this.reserveDate.forEach(item => {
+                        this.arrDate.push(new Date(item))
+                    });
+                })
         },
 
     }

@@ -116,8 +116,6 @@
                         });
                     })
                 });
-            console.log(this.data);
-            console.log(this.filterCity);
 
         },
 
